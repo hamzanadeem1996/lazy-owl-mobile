@@ -32,7 +32,7 @@ const checkFirstLogin = () => {
     return new Promise((resolve) => {
         db.transaction(function(txn) {
             txn.executeSql(
-                "SELECT name FROM sqlite_master WHERE type='table' AND name='settings';",
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='user';",
                 [],
                 (tx, response) => {
                     if (response.rows.length === 0) {
@@ -50,29 +50,34 @@ const checkFirstLogin = () => {
 
 const saveUserData = (data) => { console.log("inside save user to database"); 
     return new Promise((resolve) => {
-        db.transaction(function(txn) {
-            txn.executeSql(
-                `SELECT * FROM user WHERE user_id = ${data.id}`,
-                [],
-                (tx, userData) => {
-                    if (userData.rows.length === 0) {
-                        txn.executeSql(
-                            "INSERT INTO user (user_id, role, token) VALUES (:user_id, :role, :token)",
-                            [data.id, data.role, data.token],
-                            (tx, results) => { console.log("Save user to database", results);
-                                if (results.rowsAffected > 0) {
-                                    resolve(true);
-                                } else {
-                                    resolve(false);
+        if (data) {
+            db.transaction(function(txn) {
+                txn.executeSql(
+                    `SELECT * FROM user WHERE user_id = ${data.id}`,
+                    [],
+                    (tx, userData) => { console.log(userData)
+                        if (userData.rows.length === 0) {
+                            txn.executeSql(
+                                "INSERT INTO user (user_id, role, token) VALUES (:user_id, :role, :token)",
+                                [data.id, data.role, data.token],
+                                (tx, results) => { console.log("Save user to database", results);
+                                    if (results.rowsAffected > 0) {
+                                        resolve(true);
+                                    } else {
+                                        resolve(false);
+                                    }
                                 }
-                            }
-                        )
-                    } else {
-                        resolve(true);
+                            )
+                        } else {
+                            resolve(true);
+                        }
                     }
-                }
-            )
-        });
+                )
+            });
+        } else {
+            resolve(false)
+        }
+        
     });
 }
 

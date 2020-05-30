@@ -257,6 +257,7 @@ class RegisterScreen extends React.Component {
                         <Input 
                             placeholder="Name" 
                             style={styles.loginScreenInputField}
+                            contextMenuHidden={true}
                             onChangeText={(name) => this.setState({name: name})}
                         />
                     </Block>
@@ -265,6 +266,7 @@ class RegisterScreen extends React.Component {
                         <Input 
                             placeholder="Email" 
                             style={styles.loginScreenInputField}
+                            contextMenuHidden={true}
                             onChangeText={(email) => this.setState({email: email})}
                         />
                     </Block>
@@ -275,6 +277,7 @@ class RegisterScreen extends React.Component {
                             viewPass
                             placeholder="Password"
                             style={styles.loginScreenInputField}
+                            contextMenuHidden={true}
                             onChangeText={(password) => this.setState({password: password})}
                         />
                     </Block>
@@ -284,6 +287,7 @@ class RegisterScreen extends React.Component {
                             password 
                             viewPass
                             placeholder="Confirm Password"
+                            contextMenuHidden={true}
                             style={styles.loginScreenInputField}
                             onChangeText={(confirmPassword) => this.setState({confirmPassword: confirmPassword})}
                         />

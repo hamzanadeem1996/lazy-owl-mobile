@@ -4,7 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
-// import io.realm.react.RealmReactPackage;
+import com.rnfs.RNFSPackage;
 import in.sriraman.sharedpreferences.RNSharedPreferencesReactPackage;
 // import com.RNFetchBlob.RNFetchBlobPackage;
 import com.imagepicker.ImagePickerPackage;
@@ -34,6 +34,7 @@ public class MainApplication extends Application implements ReactApplication {
           // packages.add(new MyReactNativePackage());
           // packages.add(new RNSharedPreferencesReactPackage());
           // packages.add(new RNFetchBlobPackage());
+          // packages.add(new RNFSPackage());
           return packages;
         }
 

@@ -17,69 +17,79 @@ export default class TaskScreenComponent extends React.Component {
         this.state = {
             isModalVisible: false,
             isDeleteModalVisible: false,
+            modalContent: null,
+            selectedTask: null
         }
     }
 
-    handleTggleModal = () => {
-        this.setState({isModalVisible: !this.state.isModalVisible});
+    handleTggleModal = (data) => {
+        this.setState({isModalVisible: !this.state.isModalVisible, modalContent: data});
     }
 
     handleTggleDeleteModal = () => {
         this.setState({isDeleteModalVisible: !this.state.isDeleteModalVisible});
     }
 
-    render() {
+    handleTaskSelect = (data) => {
+        
+    }
 
-        var { cards } = this.props;
-        var { isModalVisible, isDeleteModalVisible } = this.state;
-
-        const Header = (props) => (
+    cardHeader = (props, data) => { console.log(data)
+        return (
             <View {...props}>
                 <Block style={{paddingVertical: "3%"}}>
-                    <Text category='h6'>Hamza Nadeem</Text>
+                    <Text category='h6'>{data.posted_by}</Text>
                 </Block>
                 <Divider />
                 
                 <Block style={{display: "flex", flexDirection: "row", justifyContent:'space-between'}}>
                     <Block style={{paddingTop: "2%"}}>
-                        <Text category='s1'>Electronics</Text>
-                        <Text category='s1'>Washing Machine</Text>
+                        <Text category='s1'>{data.category}</Text>
+                        <Text category='s1'>{data.sub_category}</Text>
                     </Block>
                     <Block style={{paddingTop: "2%", alignItems: "flex-end"}}>
-                        <Text category='s1' style={{color: colors.mainColor}}>$66889</Text>
-                        <Text category='s1'>Lahore</Text>
+                        <Text category='s1' style={{color: colors.mainColor}}>${data.budget}</Text>
+                        <Text category='s1'>{data.location}</Text>
                     </Block>
                 </Block>
                 
             </View>
-            );
-        
-            const Footer = (props) => (
-                <View {...props} style={[props.style, styles.footerContainer]}>
-                    <TouchableWithoutFeedback onPress={this.handleTggleModal}>
-                        <Icon name="eye" size={20} style={{padding: "3%"}}></Icon>
-                    </TouchableWithoutFeedback>
-                    
-                    <TouchableWithoutFeedback onPress={() => this.props.props.navigation.navigate('AddTaskScreen')}>
-                        <Icon name="edit" size={20} style={{padding: "3%"}}></Icon>
-                    </TouchableWithoutFeedback>
-        
-                    <TouchableWithoutFeedback onPress={() => this.props.props.navigation.navigate('TaskBidsScreen')}>
-                        <Icon name="gavel" size={20} style={{padding: "3%"}}></Icon>
-                    </TouchableWithoutFeedback>
-        
-                    <TouchableWithoutFeedback onPress={this.handleTggleDeleteModal}>
-                        <Icon name="trash" size={20} style={{padding: "3%"}}></Icon>
-                    </TouchableWithoutFeedback>
-        
-                    <TouchableWithoutFeedback onPress={() => this.props.props.navigation.navigate('TaskComplainScreen')}>
-                        <Icon name="envelope" size={20} style={{padding: "3%"}}></Icon>
-                    </TouchableWithoutFeedback>
-                </View>
-            );
+        );
+    }
+
+    modalFooter = (props, data) => {
+        return (
+            <View {...props} style={[props.style, styles.footerContainer]}>
+                <TouchableWithoutFeedback onPress={() => this.handleTggleModal(data)}>
+                    <Icon name="eye" size={20} style={{padding: "3%"}}></Icon>
+                </TouchableWithoutFeedback>
+                
+                {/* <TouchableWithoutFeedback onPress={() => this.props.props.navigation.navigate('AddTaskScreen')}>
+                    <Icon name="edit" size={20} style={{padding: "3%"}}></Icon>
+                </TouchableWithoutFeedback> */}
+    
+                {/* <TouchableWithoutFeedback onPress={() => this.props.props.navigation.navigate('TaskBidsScreen')}>
+                    <Icon name="gavel" size={20} style={{padding: "3%"}}></Icon>
+                </TouchableWithoutFeedback>
+    
+                <TouchableWithoutFeedback onPress={this.handleTggleDeleteModal}>
+                    <Icon name="trash" size={20} style={{padding: "3%"}}></Icon>
+                </TouchableWithoutFeedback>
+    
+                <TouchableWithoutFeedback onPress={() => this.props.props.navigation.navigate('TaskComplainScreen')}>
+                    <Icon name="envelope" size={20} style={{padding: "3%"}}></Icon>
+                </TouchableWithoutFeedback> */}
+            </View>
+        );
+    }
+
+    render() {
+
+        var { cards } = this.props;
+        var { isModalVisible, isDeleteModalVisible, modalContent } = this.state;
 
         return(
-            <Block>
+            <Block style={{height: "100%"}}>
                 {/* Delete Modal */}
                 <Modal 
                     isVisible={isDeleteModalVisible}
@@ -146,12 +156,12 @@ export default class TaskScreenComponent extends React.Component {
                             <Block style={{height: "100%"}}>
                                 <ScrollView style={{height: "100%"}} showsHorizontalScrollIndicator={false}>
                                     <Block style={{marginTop: "2%", alignItems: "center"}}>
-                                        <Text category='h5' style={{color: colors.mainColor}}>Project Title</Text>
+                                        <Text category='h5' style={{color: colors.mainColor}}>{modalContent ? modalContent.title: "-"}</Text>
                                     </Block>
 
                                     <Block style={{alignItems: "center", marginTop: "2%"}}>
-                                        <Text>Category</Text>
-                                        <Text style={{marginTop: "1%"}}>Sub Category</Text>
+                                        <Text>{modalContent ? modalContent.category: "-"}</Text>
+                                        <Text style={{marginTop: "1%"}}>{modalContent ? modalContent.sub_category: "-"}</Text>
                                     </Block>
 
                                     <Divider style={{marginTop: "1%"}} />
@@ -162,7 +172,7 @@ export default class TaskScreenComponent extends React.Component {
                                         </Block>
 
                                         <Block>
-                                            <Text>Lahore</Text>
+                                            <Text>{modalContent ? modalContent.location: "-"}</Text>
                                         </Block>
                                     </Block>
 
@@ -172,7 +182,7 @@ export default class TaskScreenComponent extends React.Component {
                                         </Block>
 
                                         <Block>
-                                            <Text>$467688</Text>
+                                            <Text>${modalContent ? modalContent.budget: "-"}</Text>
                                         </Block>
                                     </Block>
 
@@ -182,7 +192,7 @@ export default class TaskScreenComponent extends React.Component {
                                         </Block>
 
                                         <Block>
-                                            <Text>6</Text>
+                                            <Text>{modalContent ? modalContent.people_required: "-"}</Text>
                                         </Block>
                                     </Block>
 
@@ -192,7 +202,7 @@ export default class TaskScreenComponent extends React.Component {
                                         </Block>
 
                                         <Block>
-                                            <Text>12-12-2019</Text>
+                                            <Text>{modalContent ? modalContent.due_date: "-"}</Text>
                                         </Block>
                                     </Block>
 
@@ -202,7 +212,7 @@ export default class TaskScreenComponent extends React.Component {
                                         </Block>
 
                                         <Block>
-                                            <Text style={{color: "#00ff00"}}>Active</Text>
+                                            <Text style={{color: "#00ff00"}}>{modalContent ? modalContent.status === 1 ? "Active" : "Not Active" : "-"}</Text>
                                         </Block>
                                     </Block>
 
@@ -212,7 +222,7 @@ export default class TaskScreenComponent extends React.Component {
                                         </Block>
 
                                         <Block>
-                                            <Text style={{color: "#4449d5"}}>Unassigned</Text>
+                                            <Text style={{color: "#4449d5"}}>{modalContent ? modalContent.assigned_to ? "Assigned" : "Unassigned" : "-"}</Text>
                                         </Block>
                                     </Block>
 
@@ -232,7 +242,7 @@ export default class TaskScreenComponent extends React.Component {
                                         </Block>
 
                                         <Block>
-                                            <Text>12-12-2019</Text>
+                                            <Text>{modalContent ? modalContent.created_at: "-"}</Text>
                                         </Block>
                                     </Block>
 
@@ -243,7 +253,7 @@ export default class TaskScreenComponent extends React.Component {
 
                                         <Block>
                                             <Text style={{color: colors.mainColor}}>
-                                                Hamza Nadeem
+                                                {modalContent ? modalContent.posted_by: "-"}
                                             </Text>
                                         </Block>
                                     </Block>
@@ -255,39 +265,38 @@ export default class TaskScreenComponent extends React.Component {
 
                                         <Block>
                                             <Text>
-                                                In a RGB color space, hex #00ff00 (also known as Green, Electric green) is composed of 0% red, 100% green and 0% blue. Whereas in a CMYK color space, it is composed of 100% cyan, 0% magenta, 100% yellow and 0% black. It has a hue angle of 120 degrees, a saturation of 100% and a lightness of 50%. #00ff00 color hex could be obtained by blending #00ff00 with #00ff00. #00ff00 (or #0f0) is a websafe color.
-                                                In a RGB color space, hex #00ff00 (also known as Green, Electric green) is composed of 0% red, 100% green and 0% blue. Whereas in a CMYK color space, it is composed of 100% cyan, 0% magenta, 100% yellow and 0% black. It has a hue angle of 120 degrees, a saturation of 100% and a lightness of 50%. #00ff00 color hex could be obtained by blending #00ff00 with #00ff00. #00ff00 (or #0f0) is a websafe color.
-
+                                                {modalContent ? modalContent.description: "-"}
                                             </Text>
                                         </Block>
                                     </Block>
 
-                                    <Button
+                                    {/* <Button
                                         style={[styles.footerControl, {backgroundColor: colors.mainColor, borderColor: colors.mainColor, marginTop: "15%"}]}
                                         // onPress={() => this.toggleBidModal()}
                                     >
                                         BID ON THIS
-                                    </Button>
+                                    </Button> */}
                                 </ScrollView>
                             </Block>
                         </Block>
                     </Block>
                 </Modal>
 
-                <ScrollView>
-                    {cards.map((key, value) => {
+                <ScrollView style={{height: "100%"}}>
+                    {cards && cards.length > 0 && cards.map((key, value) => {
                         return(
-                            <Layout style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-                                <Card style={styles.card} header={Header} footer={Footer}>
+                            <Layout style={{flex: 1, justifyContent: 'center'}}>
+                                <Card style={styles.card} header={(props) => this.cardHeader(props, key)} footer={(props) => this.modalFooter(props, key)}>
                                     <Text>
-                                        The Maldives, officially the Republic of Maldives, is a small country in South Asia, located in the Arabian Sea
-                                        of the Indian Ocean. It lies southwest of Sri Lanka and India, about 1,000 kilometres (620 mi) from the Asian
-                                        continent
+                                        {key.description}
                                     </Text>
                                 </Card>
                             </Layout>
                         );
                     })}
+                    <Block style={{marginBottom: "20%"}}>
+
+                    </Block>
                 </ScrollView>
             </Block>
         );

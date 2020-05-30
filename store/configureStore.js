@@ -1,12 +1,11 @@
 import { createStore, combineReducers } from 'redux';
 import userReducer from '../reducers/UserReducer.js';
+import appReducer from '../reducers/AppReducer.js'
 
 const rootReducer = combineReducers(
     { 
-        user: userReducer, 
-    },
-    {
-        updateFirstTimeLogin: userReducer 
+        UserReducer: userReducer, 
+        AppReducer: appReducer
     }
 );
 

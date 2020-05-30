@@ -5,6 +5,7 @@ const BASE_URL = SERVER_URL + "/api/";
 const UNASSIGNED_TASKS_URL = BASE_URL + "project/active";
 const BID_ON_TASK_URL = BASE_URL + "project/bid";
 const GET_CATEGORIES_URL = BASE_URL + "services/all";
+const POST_TASK = BASE_URL + "project/add";
 
 const getLoggedInUser = (userId) => {
     return new Promise((resolve) => {
@@ -23,7 +24,13 @@ const getUnassignedTasks = (userId, page, limit) => {
     return new Promise((resolve) => {
         getLoggedInUser(userId).then(response => {
             if (response) {
-                fetch(UNASSIGNED_TASKS_URL + `?page=${page}&limit=${limit}`, {
+                let URL = null;
+                if (page) {
+                    URL = `?page=${page}&limit=${limit}`;
+                } else {
+                    URL = `?limit=${limit}`;
+                }
+                fetch(UNASSIGNED_TASKS_URL + URL, {
                     headers: {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
@@ -99,4 +106,27 @@ const getCategories = (token) => {
     })
 }
 
-export { getUnassignedTasks, postBidOnTask, getCategories };
+const postTask = (data, token) => {
+    return new Promise((resolve) => {
+        fetch(POST_TASK, {
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Authorization': `Bearer ${token}`
+            },
+            method: 'POST',
+            body: JSON.stringify({...data})
+        })
+        .then((response) => { console.log(response);
+            let responseJson = response.json();
+            resolve(responseJson);
+        })
+        .catch((error) => {
+            console.log("Post task error :", error);
+            resolve({status: 500});
+        })
+    })
+}
+
+export { getUnassignedTasks, postBidOnTask, getCategories, postTask };

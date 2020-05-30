@@ -1,5 +1,5 @@
 import React from 'react';
-import { StatusBar, Image } from 'react-native';
+import { StatusBar, Image, BackHandler } from 'react-native';
 import { DrawerItem, IndexPath, ApplicationProvider, Drawer } from '@ui-kitten/components';
 import * as eva from '@eva-design/eva';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -10,17 +10,17 @@ var STATE = null;
 const StatusHeight = StatusBar.currentHeight;
 const Header = (props) => {
   return(
-    <Block style={{marginTop: StatusHeight, backgroundColor: colors.mainColor}}>
+    <Block style={{marginTop: 0, backgroundColor: colors.mainColor}}>
       <Block style={{display: "flex", flexDirection: "row", paddingVertical: "2%"}}>
         <Block style={{marginHorizontal: wp(3), height: "auto", display: "flex", width: "30%"}}>
           <Image 
-            source={{ uri: `${STATE.user.user.profile_image_url}` }} 
+            source={{ uri: `${STATE.UserReducer.user.profile_image_url}` }} 
             style={{width: 100, height: 100, borderRadius: 400/ 2}} 
           />
         </Block>
         <Block style={{display: "flex", width: "70%"}}>
-          <Text color="#FFFFFF" size={20} style={{paddingVertical: "5%"}}>{STATE.user.user.name} </Text>
-            <Text color="#FFFFFF" size={30}>${STATE.user.user.wallet_amount}</Text>
+          <Text color="#FFFFFF" size={20} style={{paddingVertical: "5%"}}>{STATE.UserReducer.user.name} </Text>
+            <Text color="#FFFFFF" size={30}>${STATE.UserReducer.user.wallet_amount}</Text>
         </Block>
       </Block>
     </Block>
@@ -30,7 +30,7 @@ const Footer = () => (
   
   <Block style={{backgroundColor: "#FFFFFF"}}>
     <Block style={{paddingVertical: "10%", marginHorizontal: wp(5)}}>
-      <Text color={colors.mainColor} size={20}>
+      <Text color={colors.mainColor} size={20} onPress={() => BackHandler.exitApp()}>
         <Icon name="arrow-right" size={20} /> Logout
       </Text>
     </Block>
@@ -39,8 +39,14 @@ const Footer = () => (
 
 export const DrawerShowcase = (props) => { 
     STATE = props.screenProps.store.getState();
-
+    const myUser = STATE.UserReducer.user;
+    const [User, updateUser] = React.useState(STATE.UserReducer.user);
     const [selectedIndexDrawer, setSelectedIndexDrawer] = React.useState(new IndexPath(null));
+
+    React.useEffect(() => {
+      let myState = props.screenProps.store.getState();
+      updateUser(myState.UserReducer.user);
+    })
 
     const renderScreen = (index) => {
       
@@ -70,11 +76,11 @@ export const DrawerShowcase = (props) => {
                 onSelect={index => {setSelectedIndexDrawer(index); renderScreen(index);}}>
                 <DrawerItem title='Profile'/>
                 <DrawerItem title='Education and Portfolio'/>
-                <DrawerItem title='Services'/>
+                {myUser.role === 3 && <DrawerItem title='Services'/>}
                 <DrawerItem title='Payment Methods'/>
-                <DrawerItem title='Transactions'/>
+                {myUser.role === 2 && <DrawerItem title='Transactions'/>}
                 <DrawerItem title='My tasks' />
-                <DrawerItem title='Change Password'/>
+                {/* <DrawerItem title='Change Password'/> */}
             </Drawer>
         </ApplicationProvider>
 

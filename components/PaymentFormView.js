@@ -1,22 +1,30 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { CreditCardInput } from 'react-native-credit-card-input';
+import { CreditCardInput, CardView, LiteCreditCardInput } from 'react-native-credit-card-input';
 import { Block, Text, Button } from 'galio-framework';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { colors, wp } from "../screens/introduction/slider/styles/index.style.js";
 
 export default class PaymentFormBlock extends React.Component {
+  
   constructor(props) {
     super(props);
-    this.state = { cardData: { valid: false } };
+    this.state = { 
+      cardData: { valid: false } 
+    };
   }
+
+
   render() {
     const { onSubmit, submitted, error } = this.props;
     return (
 
         <Block>
-            <Block>
-                <CreditCardInput requiresName onChange={(cardData) => this.setState({ cardData })} />
+            <Block style={{marginTop: "10%"}}>
+                {/* <CardView /> */}
+                <LiteCreditCardInput onChange={(cardData) => this.setState({ cardData })} />
+                
+                {/* <CreditCardInput requiresName onChange={(cardData) => this.setState({ cardData })} /> */}
             </Block>
 
             <Block style={{alignItems: "center", marginTop: "15%"}}>

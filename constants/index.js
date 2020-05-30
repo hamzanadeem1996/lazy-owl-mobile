@@ -1,2 +1,3 @@
 export const LOGIN_USER = 'LOGIN_USER';
 export const FIRST_TIME_LOGIN = 'FIRST_TIME_LOGIN';
+export const PERSISTENCE_KEY = 'PERSISTENCE_KEY';

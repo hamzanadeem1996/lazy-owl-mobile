@@ -3,8 +3,10 @@ import { StyleSheet } from 'react-native';
 import { BottomNavigation, BottomNavigationTab, Text } from '@ui-kitten/components';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-export const BottomNavigator = (props, defaultIndex) => {
+export const BottomNavigator = (props, user) => { 
 
+  let STATE = props.navigator.screenProps.store.getState();
+  let myuser = STATE.UserReducer.user;
   const [selectedIndex, setSelectedIndex] = React.useState(1);
 
   React.useEffect(() => {
@@ -32,9 +34,9 @@ export const BottomNavigator = (props, defaultIndex) => {
       <BottomNavigationTab title={<Text style={{color: "#ffffff", backgroundColor: "#922c88"}}>
           <Icon name="search" color="#FFFFFF" size={14} /> TASK
           </Text>} style={{backgroundColor: "#922c88"}} />
-      <BottomNavigationTab title={<Text style={{color: "#ffffff", backgroundColor: "#922c88"}}>
+      {myuser.role === 2 && <BottomNavigationTab title={<Text style={{color: "#ffffff", backgroundColor: "#922c88"}}>
           <Icon name="plus" color="#FFFFFF" size={14} /> ADD
-          </Text>} style={{backgroundColor: "#922c88"}} />
+          </Text>} style={{backgroundColor: "#922c88"}} />}
     </BottomNavigation>
   );
 };

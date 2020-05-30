@@ -1,5 +1,5 @@
 import React from 'react';
-import { StatusBar, BackHandler, ActivityIndicator } from 'react-native';
+import { StatusBar, ActivityIndicator } from 'react-native';
 import autoBind from 'react-autobind';
 import styles, { colors, wp } from '../introduction/slider/styles/index.style.js';
 import { Input, Block, Button, Text } from 'galio-framework';
@@ -21,7 +21,6 @@ export default class ForgetPasswordScreen extends React.Component {
     }
 
     componentDidMount = () => {
-        BackHandler.addEventListener('hardwareBackPress', this.handleBackButtonClick);
         NetInfo.fetch().then(state => {
             if (!state.isConnected) {
                 this.setState({internetConnected: false});

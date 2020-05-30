@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "46756671392",
+    "firebase_url": "https://lazyowl-326be.firebaseio.com",
+    "project_id": "lazyowl-326be",
+    "storage_bucket": "lazyowl-326be.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:46756671392:android:becb8d3e05b1aa2c67bec5",
+        "android_client_info": {
+          "package_name": "com.lazyowl"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "46756671392-hv17mtkj6emllam7h428r2o7e0b068go.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZgZIGDnXG1pdEzUpYT3om4-KDPoW0a70"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "46756671392-hv17mtkj6emllam7h428r2o7e0b068go.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

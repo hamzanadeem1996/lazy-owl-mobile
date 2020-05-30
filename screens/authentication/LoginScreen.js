@@ -12,7 +12,6 @@ import NetInfo from '@react-native-community/netinfo';
 import { saveUserData } from "../../database/index.js";
 import SplashScreen from '../splash/SpalshScreen.js';
 import { NavigationActions, StackActions } from 'react-navigation';
-import AsyncStorage from '@react-native-community/async-storage';
 
 const StatusHeight = StatusBar.currentHeight;
 class LoginScreen extends React.Component {
@@ -33,7 +32,6 @@ class LoginScreen extends React.Component {
     }
 
     componentDidMount = () => {
-        // BackHandler.addEventListener('hardwareBackPress', this.handleBackButtonClick);
         NetInfo.fetch().then(state => {
             if (!state.isConnected) {
                 this.setState({internetConnected: false});
@@ -61,14 +59,11 @@ class LoginScreen extends React.Component {
     saveUserData = async (userData) => {
         return new Promise(async (resolve) => {
             this.props.updateUser(userData);
-            let user = await AsyncStorage.setItem("user", JSON.stringify(userData));
-            let getAsyncUser = await AsyncStorage.getItem("user");
-            
             saveUserData(userData).then(response => {
                 console.log("User saved to database :", response);
-                if (getAsyncUser && response) { 
+                // if (response) { 
                     resolve(response);
-                }
+                // }
             });
         })
     }
@@ -97,20 +92,23 @@ class LoginScreen extends React.Component {
     
                 if (this.validateEmail(email)){
                     this.setState({showLoader: true});
-                    services.login(data).then(response => { console.log(response);
+                    services.login(data).then(response => { 
                         if (response.error || response.status === 400) {
                             this.setState({showLoader: false});
-                            Snackbar.show({
-                                text: response.error,
-                                duration: Snackbar.LENGTH_SHORT,
-                            });
+                            setTimeout(() => {
+                                Snackbar.show({
+                                    text: response.error,
+                                    duration: Snackbar.LENGTH_SHORT,
+                                });
+                            }, 500)
+                            
                         } else if(response.status === 500){
                             this.setState({showLoader: false});
                             Snackbar.show({
                                 text: "Network problem, please try again later",
                                 duration: Snackbar.LENGTH_SHORT,
                             });
-                        } else {
+                        } else { console.log(response)
                             this.saveUserData(response.user).then(response => {
                                 if (response) {
                                     this.setState({showLoader: false});
@@ -119,6 +117,14 @@ class LoginScreen extends React.Component {
                                         actions: [NavigationActions.navigate({ routeName: 'TestScreen' })],
                                     });
                                     this.props.navigation.dispatch(resetAction);
+                                } else {
+                                    this.setState({showLoader: false});
+                                    setTimeout(() => {
+                                        Snackbar.show({
+                                            text: "Network problem, please try again later",
+                                            duration: Snackbar.LENGTH_SHORT,
+                                        });
+                                    }, 200)
                                 }
                             });
                         }
@@ -167,13 +173,13 @@ class LoginScreen extends React.Component {
                 
                 <Block style={{backgroundColor: "#FFFFFF", height: "100%"}}>
                     <Modal 
-                    isVisible={showLoader}
-                    animationInTiming={10}
-                    animationOutTiming={10}
-                    backdropTransitionOutTiming={10}
-                    coverScreen={true}
-                    scrollHorizontal={true}
-                    useNativeDriver={true}
+                        isVisible={showLoader}
+                        animationInTiming={10}
+                        animationOutTiming={10}
+                        backdropTransitionOutTiming={10}
+                        coverScreen={true}
+                        scrollHorizontal={true}
+                        useNativeDriver={true}
                     >
                         {showLoader && <ActivityIndicator size="large" color={colors.mainColor} />}
                     </Modal>
@@ -188,6 +194,7 @@ class LoginScreen extends React.Component {
                                 <Input 
                                     style={styles.loginScreenInputField}
                                     placeholder="Email"  
+                                    contextMenuHidden={true}
                                     onChangeText={(email) => this.setState({email: email})}
                                 />
                             </Block>
@@ -197,6 +204,7 @@ class LoginScreen extends React.Component {
                                     password 
                                     viewPass
                                     placeholder="Password"
+                                    contextMenuHidden={true}
                                     style={styles.loginScreenInputField}
                                     onChangeText={(password) => this.setState({password: password})}
                                 />

@@ -2,13 +2,13 @@ import React from 'react';
 import AppNavigator from './AppNavigator';
 import { enableScreens } from 'react-native-screens';
 import { checkFirstLogin, createDataBase } from "./database/index.js";
-import { updateFirstTimeLogin } from './actions/user.js';
-import AsyncStorage from '@react-native-community/async-storage';
+import { updateFirstTimeLogin, updatePersistenceKey } from './actions/app.js';
 import { AppState } from "react-native";
+import { connect } from 'react-redux';
 
 enableScreens();
 
-export default class App extends React.Component {
+class App extends React.Component {
   constructor(props) {
     super(props);
 
@@ -18,17 +18,11 @@ export default class App extends React.Component {
     appState: AppState.currentState
   }
 
-  componentWillUnmount = () => {
-    AppState.removeEventListener('change', this.handleAppStateChange);
-  }
-
   componentDidMount = async () => {
     AppState.addEventListener('change', this.handleAppStateChange);
     checkFirstLogin().then(response => {
       if (response === true) {
-        this.props.store.dispatch(
-          updateFirstTimeLogin(true)
-        );
+        this.props.updateFirstTimeLogin(true);
         createDataBase().then(responseData => {
           console.log(responseData);
         });
@@ -37,25 +31,24 @@ export default class App extends React.Component {
   }
 
   handleAppStateChange = async (nextAppState) => {
-    if (nextAppState != 'active') {
-      await AsyncStorage.clear()
+    if (nextAppState != 'active' || nextAppState != 'background' || nextAppState != 'foreground') {
+      await this.props.updatePersistenceKey(null);
     }
   }
 
   render() {
 
     var props = this.props;
-    const persistenceKey = "persistenceKey";
     const persistNavigationState = async (navState) => {
       try {
-        await AsyncStorage.setItem(persistenceKey, JSON.stringify(navState))
+        this.props.updatePersistenceKey(navState);
       } catch(err) {
-        
+        console.log(err);
       }
     }
     const loadNavigationState = async () => {
-      const jsonString = await AsyncStorage.getItem(persistenceKey)
-      return JSON.parse(jsonString)
+      let state = this.props.store.getState();
+      return state.AppReducer.persistenceKey;
     }
     
     return (
@@ -67,3 +60,19 @@ export default class App extends React.Component {
     );
   }
 }
+
+const mapStateToProps = state => {
+  return { 
+    firstTimeLogin: state.firstTimeLogin,
+    persistenceKey: state.persistenceKey
+   }
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    updatePersistenceKey: key => dispatch(updatePersistenceKey(key)),
+    updateFirstTimeLogin: key => dispatch(updateFirstTimeLogin(key))
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App)

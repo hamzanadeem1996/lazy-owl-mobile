@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Linking } from 'react-native';
 import { Tab, TabBar, TabView, Layout, Divider, List, ListItem, Button } from '@ui-kitten/components';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Block, Text } from 'galio-framework';
@@ -15,19 +15,12 @@ export const TopNavigation = (data) => {
     <Icon name='star' size={16} />
   );
 
-  const renderItemAccessory = (props) => (
-    <Block style={{display: "flex", flexDirection: "row"}}>
-        <Text style={{paddingTop: "2.2%"}}>$5678</Text>
-        <Button size='tiny' style={{backgroundColor: colors.mainColor, borderColor: colors.mainColor, marginLeft: "5%"}}>RECEIPT</Button>
-    </Block>
-  );
-
   const renderItem = ({ item, index }) => (
     <ListItem
       title={`${item.title}`}
       description={`${item.description}`}
       accessoryLeft={renderItemIcon}
-      accessoryRight={renderItemAccessory}
+      accessoryRight={() => rightSide(item)}
     />
   );
 
@@ -48,24 +41,33 @@ export const TopNavigation = (data) => {
         </Layout>
       </Tab>
       
-    <Tab title={<Text color={colors.mainColor}>WALLET TRANSACTIONS</Text>}>
+    {/* <Tab title={<Text color={colors.mainColor}>WALLET TRANSACTIONS</Text>}>
         <Layout>
           <List
-              data={data.deposit}
+              data={data.wallet}
               ItemSeparatorComponent={Divider}
-              renderItem={renderItem}
+              renderItem={enderItem}
           />
         </Layout>
-      </Tab>
+      </Tab> */}
     </TabView>
   );
 };
 
-const styles = StyleSheet.create({
-  tabContainer: {
-    // height: 64,
-    // alignItems: 'center',
-    // justifyContent: 'center',
-  },
-});
+
+
+function rightSide(data) {
+  return (
+    <Block style={{display: "flex", flexDirection: "row"}}>
+        <Text style={{paddingTop: "2.2%"}}>${data.amount}</Text>
+        <Button onPress={() => handleReceipt(data.receipt)} size='tiny' style={{backgroundColor: colors.mainColor, borderColor: colors.mainColor, marginLeft: "5%"}}>RECEIPT</Button>
+    </Block>
+  );
+}
+
+function handleReceipt(url) {
+  Linking.openURL(url);
+}
+
+
 

@@ -9,6 +9,9 @@ export const TopNavigationTasks = (data) => {
   const [selectedIndex, setSelectedIndex] = React.useState(0);
   const shouldLoadComponent = (index) => index === selectedIndex;
 
+    let completed = data.completed;
+    let active = data.active;
+    let discarded = data.discarded;
     let cards = [
         {
             first: "first",
@@ -51,15 +54,15 @@ export const TopNavigationTasks = (data) => {
       onSelect={index => setSelectedIndex(index)}>
        
         <Tab title={<Text color={colors.mainColor}>ACTIVE</Text>}>
-            <TaskScreenComponent props={data} cards={cards} />
+            <TaskScreenComponent props={data} cards={active} />
         </Tab>
       
         <Tab title={<Text color={colors.mainColor}>COMPLETED</Text>}>
-            <TaskScreenComponent props={data} cards={cards} />
+            <TaskScreenComponent props={data} cards={completed} />
         </Tab>
 
         <Tab title={<Text color={colors.mainColor}>DISCARDED</Text>}>
-            <TaskScreenComponent props={data} cards={cards} />
+            <TaskScreenComponent props={data} cards={discarded} />
         </Tab>
 
     </TabView>

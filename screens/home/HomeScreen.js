@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StatusBar, ScrollView, Dimensions, TouchableWithoutFeedback, FlatList, ActivityIndicator, PermissionsAndroid, RefreshControl } from 'react-native';
+import { View, StatusBar, ScrollView, Dimensions, TouchableWithoutFeedback, FlatList, ActivityIndicator, PermissionsAndroid, RefreshControl, ImageBackground, Image } from 'react-native';
 import autoBind from 'react-autobind';
 import styles, { colors, wp } from '../introduction/slider/styles/index.style.js';
 import * as eva from '@eva-design/eva';
@@ -10,7 +10,6 @@ import { Block, Input } from 'galio-framework';
 import Modal from 'react-native-modal';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { getUnassignedTasks, postBidOnTask } from "../../services/TaskServices.js";
-import AsyncStorage from '@react-native-community/async-storage';
 import RNFetchBlob from 'rn-fetch-blob';
 import Snackbar from 'react-native-snackbar';
 import * as db from "../../database/index.js";
@@ -23,6 +22,7 @@ export default class TestScreen extends React.Component {
         super();
         autoBind(this);
         this.state = {
+            user: null,
             search: '',
             isModalVisible: false,
             isBidModalVisible: false,
@@ -34,13 +34,19 @@ export default class TestScreen extends React.Component {
             modalContent: null,
             externalStorageAllowed: false,
             refreshing: false,
-            bidAmount: null
+            bidAmount: null,
+            mediaFile: null,
+            firebaseImageUri: null,
+            isImageModalVisible: false
         }
-        this.offset = 1;
+        this.offset = null;
         this.limit = 5;
     }
 
     componentDidMount = async () => {
+        let state = this.props.screenProps.store.getState();
+        let user = state.UserReducer.user;
+        this.setState({user: user})
         const granted = await PermissionsAndroid.request(
             PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
             {
@@ -64,7 +70,17 @@ export default class TestScreen extends React.Component {
     };
 
     toggleModal = (data) => {
-        this.setState({isModalVisible: !this.state.isModalVisible, modalContent: data});
+        let name = null;
+        if (data.media_url){
+            if (data.media_url.indexOf("firebasestorage") > 0) {
+                name = "Download File"
+            } else {
+                let urlSiplit = data.media_url.split('/');
+                name = urlSiplit[urlSiplit.length - 1];
+            }
+            
+        }
+        this.setState({isModalVisible: !this.state.isModalVisible, modalContent: data, mediaFile: name});
     };
 
     toggleBidModal = () => {
@@ -76,7 +92,7 @@ export default class TestScreen extends React.Component {
         this.props.navigation.navigate('UserProfileScreen');
     }
 
-    downloadMediaFile = async (url) => {
+    downloadMediaFile = async (url) => { 
         if (this.state.externalStorageAllowed === PermissionsAndroid.RESULTS.GRANTED) {
             var date      = new Date();
             var ext       = this.extention(url);
@@ -92,13 +108,19 @@ export default class TestScreen extends React.Component {
                     path:  PictureDir + "/image_"+Math.floor(date.getTime() + date.getSeconds() / 2)+ext,
                     description : 'Image'
                 }
-            }
-            config(options).fetch('GET', url).then((res) => {
-                Snackbar.show({
-                    text: 'Media Downloaded Successfully!',
-                    duration: Snackbar.LENGTH_LONG,
+            } 
+
+            if (url.indexOf("firebasestorage") > 0) { console.log(url)
+                this.setState({firebaseImageUri: url, isImageModalVisible: true})
+            } else {
+                config(options).fetch('GET', url).then((res) => {
+                    Snackbar.show({
+                        text: 'Media Downloaded Successfully!',
+                        duration: Snackbar.LENGTH_LONG,
+                    });
                 });
-            });
+            }
+            
         } else {
             Snackbar.show({
                 text: 'Please allow external storage permission from settings!',
@@ -114,8 +136,9 @@ export default class TestScreen extends React.Component {
 
     getLoggedInUser = async () => {
         return new Promise(async (resolve) => {
-            let user = await AsyncStorage.getItem("user");
-            user = JSON.parse(user); 
+            let user = null;
+            let state = this.props.screenProps.store.getState();
+            user = state.UserReducer.user;
             
             if (!user) {
                 db.getUserData(userResponse => { 
@@ -133,8 +156,12 @@ export default class TestScreen extends React.Component {
     loadMoreData = async (offset = null, limit = null) => { 
         if (!this.state.fetching_from_server && !this.state.isListEnd) {
             
-            let finalOffset = this.offset;
+            let finalOffset = null;
             let finalLimit = this.limit;
+            
+            if (this.offset) {
+                finalOffset = this.offset;
+            }
 
             this.setState({ fetching_from_server: true });
             
@@ -150,7 +177,11 @@ export default class TestScreen extends React.Component {
                         if (response.status === 200 && response.tasks.length > 0) {
                             
                             if (!(offset && limit)) { 
-                                this.offset = this.offset + this.limit;
+                                if (this.offset) {
+                                    this.offset = this.offset + this.limit;
+                                } else {
+                                    this.offset = this.limit;
+                                }
                             }
                             
                             this.setState({
@@ -213,8 +244,8 @@ export default class TestScreen extends React.Component {
                 duration: Snackbar.LENGTH_LONG,
             });
         } else {
-            let user = await AsyncStorage.getItem("user");
-            user = JSON.parse(user);
+            let state = this.props.screenProps.store.getState();
+            let user = state.UserReducer.user;
     
             let data = {
                 userId: user.id,
@@ -246,10 +277,14 @@ export default class TestScreen extends React.Component {
         
     }
 
+    toggleImageModal = () => {
+        this.setState({isImageModalVisible: false})
+    }
+
     renderFooter() {
         return (
           <View style={{
-                height: "100%",
+                // height: "100%",
                 padding: 10,
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -304,7 +339,7 @@ export default class TestScreen extends React.Component {
 
     render(){
 
-        const { search, modalContent, refreshing, bidAmount, isBidModalVisible } = this.state;
+        const { search, modalContent, refreshing, bidAmount, isBidModalVisible, mediaFile, firebaseImageUri, isImageModalVisible } = this.state;
 
         return(
             
@@ -321,6 +356,25 @@ export default class TestScreen extends React.Component {
                     onClear={this.handleSearchCancel}
                     onCancel={this.handleSearchCancel}
                 />
+                <Modal 
+                    isVisible={isImageModalVisible}
+                    animationInTiming={100}
+                    animationOutTiming={100}
+                    backdropTransitionOutTiming={100}
+                    coverScreen={true}
+                    scrollHorizontal={true}
+                    deviceWidth={deviceWidth}
+                    deviceHeight={deviceHeight}
+                    useNativeDriver={true}
+                    propagateSwipe
+                    onBackdropPress={this.toggleImageModal}
+                    onBackButtonPress={this.toggleImageModal}
+                >
+                    <Block style={{height: "100%"}}>
+                        <Image source={{uri: firebaseImageUri}} style={{height: "100%"}} />
+                    </Block>
+                    
+                </Modal>
                 <Modal 
                     isVisible={isBidModalVisible}
                     animationInTiming={700}
@@ -360,9 +414,9 @@ export default class TestScreen extends React.Component {
 
                 <Modal 
                     isVisible={this.state.isModalVisible}
-                    animationInTiming={700}
-                    animationOutTiming={700}
-                    backdropTransitionOutTiming={600}
+                    animationInTiming={400}
+                    animationOutTiming={400}
+                    backdropTransitionOutTiming={400}
                     coverScreen={true}
                     scrollHorizontal={true}
                     deviceWidth={deviceWidth}
@@ -456,7 +510,7 @@ export default class TestScreen extends React.Component {
 
                                         <Block>
                                             {modalContent && modalContent.media ? (
-                                                <Text style={{color: colors.mainColor}} onPress={() => this.downloadMediaFile(modalContent.media_url)}><Icon name="download" size={12}></Icon> {modalContent ? modalContent.media ? modalContent.media: "No Media": ""}</Text>
+                                                <Text style={{color: colors.mainColor}} onPress={() => this.downloadMediaFile(modalContent.media_url)}><Icon name="download" size={12}></Icon> {modalContent ? modalContent.media ? mediaFile: "No Media": ""}</Text>
                                             ) : ( 
                                                 <Text style={{color: colors.mainColor}}>No Media</Text>
                                             )}
@@ -479,7 +533,7 @@ export default class TestScreen extends React.Component {
                                         </Block>
 
                                         <Block>
-                                            <TouchableWithoutFeedback onPress={() => this.switchToUserProfile()}>
+                                            <TouchableWithoutFeedback>
                                                 <Text style={{color: colors.mainColor}}>
                                                     {modalContent ? modalContent.posted_by: ""}
                                                 </Text>
@@ -538,7 +592,7 @@ export default class TestScreen extends React.Component {
                         />
                 )}
 
-                <BottomNavigator navigator={this.props} />
+                <BottomNavigator navigator={this.props} user={this.state.user} />
 
             </ApplicationProvider>
             

@@ -6,6 +6,7 @@ import { StatusBar } from "react-native";
 import { ApplicationProvider } from '@ui-kitten/components';
 import * as eva from '@eva-design/eva';
 import { TopNavigationTasks } from "../../components/TopNavigationTasks.js";
+import * as services from "../../services/UserServices.js";
 
 const StatusHeight = StatusBar.currentHeight;
 
@@ -16,11 +17,36 @@ export default class MyTasksScreen extends React.Component {
 
         this.state = {
             showEditSection: false,
+            showLoader: false,
+            userRole: null,
+            activeTasks: null,
+            completedTasks: null,
+            discardedTasks: null
         }
+    }
+
+    componentDidMount = async () => {
+        let state = this.props.screenProps.store.getState();
+        let user = state.UserReducer.user;
+        this.setState({userRole: user.role});
+
+        let data = {
+            id: user.id,
+            token: user.token
+        }
+
+        services.getUserTasks(data).then(response => {
+            if (response.status === 200) {
+                console.log(response);
+                this.setState({activeTasks: response.projects.active_projects, completedTasks: response.projects.completed_projects, discardedTasks: response.projects.discarded_projects});
+            }
+        })
     }
 
 
     render() {
+
+        let { activeTasks, completedTasks, discardedTasks } = this.state;
 
         let deposit = [
             {title: "baby@gmail.com", amount: "$123", receipt: "this is receipt", description: "12-12-2029"},
@@ -40,6 +66,9 @@ export default class MyTasksScreen extends React.Component {
                         <Block style={{marginTop: "3%"}}>
                             <TopNavigationTasks
                                 {...this.props}
+                                active={activeTasks}
+                                completed={completedTasks}
+                                discarded={discardedTasks}
                                 deposit={deposit}
                                 walletTraansactions={deposit}
                             />

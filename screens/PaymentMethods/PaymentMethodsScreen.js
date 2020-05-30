@@ -101,6 +101,7 @@ export default class PaymentMethodsScreen extends React.Component {
     const { submitted, error, userRole } = this.state;
     return (
         <AddSubscriptionView
+          {...this.props}
           userRole={userRole}
           error={error}
           submitted={submitted}
