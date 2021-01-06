@@ -20,7 +20,7 @@
     "@react-navigation/drawer": "^5.5.0",
     "@ui-kitten/components": "^5.0.0-alpha.1",
     "@ui-kitten/eva-icons": "^5.0.0-alpha.1",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "firebase": "^7.14.5",
     "galio-framework": "^0.6.3",
     "lottie-react-native": "^3.4.0",
